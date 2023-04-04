@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     std::vector<Vec4i> hierarchy;
     findContours(framep, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
     // Loop through the contours.  Bound each contour by both a bounding
-    // (rotated) retangle and a minimum enclosing circle.  Draw the contour on
+    // (rotated) rectangle and a minimum enclosing circle.  Draw the contour on
     // the original image.  If the bounding rectangle is square enough (aspect
     // ratio near 1), and if the enclosing circle is large enough, then also
     // draw the minimum enclosing circle.
