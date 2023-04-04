@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   // Process the video file and track the red square
   namedWindow("Image", WINDOW_AUTOSIZE);
   while(1) {
-    // Frame will store the next image frame from the video; framep will store
+    // frame will store the next image frame from the video; framep will store
     // the processed version of this frame.
     Mat frame, framep;
     // Grab next frame from camera
