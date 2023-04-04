@@ -58,6 +58,10 @@ int main(int argc, char** argv) {
   }
 
   // Display an image
+  if (argc != 2) {
+    std::cout << "No path to image provided." << std::endl;
+    return EXIT_FAILURE;
+  }
   cv::Mat image = cv::imread(std::string(argv[1]));
   if (!image.data) {
     std::cout << "Could not open or find the image" << std::endl;
