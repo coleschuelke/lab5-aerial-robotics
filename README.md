@@ -3,7 +3,7 @@
 ## Install
 ### Clone 
 ```bash
-cd ~Workspace
+cd ~/Workspace
 git clone https://gitlab.com/todd.humphreys/lab5-aerial-robotics.git
 cd lab5-aerial-robotics
 git submodule update --init --recursive
@@ -11,6 +11,7 @@ git submodule update --init --recursive
 
 ### Build
 ```bash
+cd ~/Workspace/lab5-aerial-robotics
 mkdir build 
 cd build
 cmake ..
@@ -19,6 +20,7 @@ make -j
 
 ### Download balloon images and metadata
 ```bash
+cd ~/Workspace/lab5-aerial-robotics
 cd images
 wget http://radionavlab.ae.utexas.edu/datastore/aerialRobotics/easy-ones.tar .
 tar xf easy-ones.tar
@@ -30,7 +32,7 @@ from `main_post-lecture.cc`), which after the build process is located in the
 `exe` directory, requires one input: the path to an image to display.  Run the
 executable as follows:
 ```bash
-cd exe
+cd ~/Workspace/lab5-aerial-robotics/exe
 ./locateBalloon ../images/easy-ones/frame00090.jpg
 ```
 
@@ -40,7 +42,7 @@ directory, requires one input: the path to a directory containing a set of
 images and a metadata file named `metadata.log`.  Run the executable as
 follows:
 ```bash
-cd exe
+cd ~/Workspace/lab5-aerial-robotics/exe
 ./locateBalloon -i ../images/easy-ones
 ```
 
