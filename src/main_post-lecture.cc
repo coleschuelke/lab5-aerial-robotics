@@ -9,22 +9,22 @@
 
 int main(int argc, char** argv) {
   // Demonstrate least squares solution based on a measurement model of the
-  // form z = Hr*x + w, with R = E[w*w'] being the measurement noise
+  // form z = H*x + w, with R = E[w*w'] being the measurement noise
   // covariance matrix.
   constexpr size_t nx = 3;
   constexpr size_t nz = 4;
   Eigen::VectorXd z(nz), xHat(nx);
-  Eigen::MatrixXd Hr(nz, nx), R(nz, nz);
-  // Fill in z, Hr, and R with example values
+  Eigen::MatrixXd H(nz, nx), R(nz, nz);
+  // Fill in z, H, and R with example values
   z << 4, 10, 6, 5;
-  Hr << 1, 0, 3, 0, 2, 6, 0, 0, 0, 0, 0, 1e-6;
+  H << 1, 0, 3, 0, 2, 6, 0, 0, 0, 0, 0, 1e-6;
   R = 3 * Eigen::MatrixXd::Identity(nz, nz);
   auto Rinv = R.inverse();
   // This is the straightforward way to solve the the normal equations
-  xHat = (Hr.transpose() * Rinv * Hr).inverse() * (Hr.transpose() * Rinv * z);
+  xHat = (H.transpose() * Rinv * H).inverse() * (H.transpose() * Rinv * z);
   std::cout << "The straightforward solution is \n" << xHat << std::endl;
   // This method is similar but more numerically stable
-  xHat = (Hr.transpose() * Rinv * Hr).ldlt().solve(Hr.transpose() * Rinv * z);
+  xHat = (H.transpose() * Rinv * H).ldlt().solve(H.transpose() * Rinv * z);
   std::cout << "The ldlt-based solution is \n" << xHat << std::endl;
 
   // Create an instance of a StructureComputer object
