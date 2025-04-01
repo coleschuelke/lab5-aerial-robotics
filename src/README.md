@@ -6,7 +6,7 @@ Students need only to modify the indicated functions in `structurecomputer.cc` a
 ## main_pre-lecture.cc
 `main` function prior to lecture
 
-## main_pre-lecture.cc
+## main_post-lecture.cc
 `main` function after lecture
 
 ## main_full.cc
