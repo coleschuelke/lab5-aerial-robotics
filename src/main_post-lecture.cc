@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   z << 4, 10, 6, 5;
   H << 1, 0, 3, 0, 2, 6, 0, 0, 0, 0, 0, 1e-6;
   R = 3 * Eigen::MatrixXd::Identity(nz, nz);
-  auto Rinv = R.inverse();
+  const auto Rinv = R.inverse();
   // This is the straightforward way to solve the normal equations
   xHat = (H.transpose() * Rinv * H).inverse() * (H.transpose() * Rinv * z);
   std::cout << "The straightforward solution is \n" << xHat << std::endl;
