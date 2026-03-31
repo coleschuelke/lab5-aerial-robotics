@@ -52,6 +52,7 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
   bool returnValue = false;
   rxVec->clear();
   Mat original;
+  // Clone the original image for debugging purposes
   if (debuggingEnabled_) original = image->clone();
   const size_t nCols_m1 = image->cols - 1;
   const size_t nRows_m1 = image->rows - 1;
@@ -61,23 +62,22 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
 
   // *************************************************************************
   //
-  // Implement the rest of the function here.  Your goal is to find a balloon
-  // of the color specified by the input 'color', and find its center in image
+  // Implement the rest of the function here.  Your goal is to find a balloon of
+  // the color specified by the input 'color', and find its center in image
   // plane coordinates (see the comments below for a discussion on image plane
-  // coordinates), expressed in pixels.  Suppose rx is an Eigen::Vector2d
-  // object that holds the x and y position of a balloon center in such
+  // coordinates), expressed in pixels.  Suppose rx is an Eigen::Vector2d object
+  // that holds the x and y position of a balloon center in image plane
   // coordinates.  You can push rx onto rxVec as follows: rxVec->push_back(rx)
   //
   // *************************************************************************
 
-  // The debugging section below plots the back-projection of true balloon 3d
-  // location on the original image.  The balloon centers you find should be
+  // The debugging section below plots the back-projection of the true balloon
+  // 3d location on the original image.  The balloon centers you find should be
   // close to the back-projected coordinates in xc_pixels.  Feel free to alter
-  // the debugging section below, or add other such sections, so you can see
-  // how your found centers compare with the back-projected centers.
+  // the code in the debugging section below, or add other such sections, so
+  // that you can see how your estimated balloon centers compare with the
+  // back-projected centers.
   if (debuggingEnabled_) {
-    // Clone the original image for debugging purposes
-    original = image->clone();
     Eigen::Vector2d xc_pixels;
     Scalar trueProjectionColor;
     if (color == BalloonColor::BLUE) {
@@ -90,13 +90,13 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
     Point2f center;
     // The image plane coordinate system, in which xc_pixels is expressed, has
     // its origin at the lower-right of the image, x axis pointing left and y
-    // axis pointing up, whereas the variable 'center' below, used by OpenCV
-    // for plotting on the image, is referenced to the image's top left corner
-    // and has the opposite x and y directions.  The measurements returned in
-    // rxVec should be given in the image plane coordinate system like
-    // xc_pixels.  Hence, once you've found a balloon center from your image
-    // processing techniques, you'll need to convert it to the image plane
-    // coordinate system using an inverse of the mapping below.
+    // axis pointing up, whereas the variable 'center' below, used by OpenCV for
+    // plotting on the image, is referenced to the image's top left corner and
+    // has the opposite x and y directions.  The measurements returned in rxVec
+    // should be given in the image plane coordinate system like xc_pixels.
+    // Hence, once you've found a balloon center from your image processing
+    // techniques, you'll need to convert it to the image plane coordinate
+    // system using an inverse of the mapping below.
     center.x = nCols_m1 - xc_pixels(0);
     center.y = nRows_m1 - xc_pixels(1);
     circle(original, center, 20, trueProjectionColor, FILLED);
