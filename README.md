@@ -28,7 +28,7 @@ tar xf easy-ones.tar
 
 ## Execute
 The initial version of the `locateBalloon` executable (with `main.cc` copied
-from `main_post-lecture.cc`), which after the build process is located in the
+from `main_post-lecture.cc`), which, after the build process, is located in the
 `exe` directory, requires one input: the path to an image to display.  Run the
 executable as follows:
 ```bash
@@ -37,7 +37,7 @@ cd ~/Workspace/lab5-aerial-robotics/exe
 ```
 
 The full version of the `locateBalloon` executable (with `main.cc` copied from
-`main_full.cc`), which after the build process is located in the `exe`
+`main_full.cc`), which, after the build process, is located in the `exe`
 directory, requires one input: the path to a directory containing a set of
 images and a metadata file named `metadata.log`.  Run the executable as
 follows:
@@ -56,7 +56,7 @@ at the end of the execution command:
 ```
 
 The `opencv_demo` executable (with `opencv-lecture/main.cc` copied from
-`opencv-lecture/main_post-lecture.cc`), which after the build process is located
+`opencv-lecture/main_post-lecture.cc`), which, after the build process, is located
 in the `exe` directory, can be run as follows:
 ```bash
 cd opencv-lecture
