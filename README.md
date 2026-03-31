@@ -48,8 +48,8 @@ cd ~/Workspace/lab5-aerial-robotics/exe
 
 If you would like to enable the dubugging mode, in which each image is
 displayed with contours, along with text information on the aspect ratio,
-size, and location of the enclosing rectangle and circle, then tack on a '-d'
-at the end of the execution command:
+size, and location of the enclosing rectangle and circle, then invoke the '-d'
+option:
 
 ```bash
 ./locateBalloon -i ../images/easy-ones -d
