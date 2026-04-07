@@ -38,7 +38,7 @@ struct Point {
 };
 
 class StructureComputer {
- public:
+public:
   // Constructor: gets called when an instance of StructureComputer is created
   StructureComputer() {}
   // Destructor: gets called when an instance of StructureComputer is destroyed
@@ -53,7 +53,7 @@ class StructureComputer {
   // Returns a copy of the stored Point object
   Point point() { return point_; }
 
- private:
+private:
   SensorParams sensorParams_;
   // The Point object estimated from the CameraBundle objects in bundleVec_
   Point point_;
@@ -67,15 +67,15 @@ class StructureComputer {
 // are specified by RCI and rc_I, respectively.  Returns a 2-by-1 vector
 // projection of X3d onto the image plane, expressed in pixels.
 //
-Eigen::Vector2d backProject(const Eigen::Matrix3d& RCI,
-                            const Eigen::Vector3d& rc_I,
-                            const Eigen::Vector3d& X3d);
+Eigen::Vector2d backProject(const Eigen::Matrix3d &RCI,
+                            const Eigen::Vector3d &rc_I,
+                            const Eigen::Vector3d &X3d);
 
 // Returns the unit vector, in the camera frame, pointing from the camera
 // origin through the coordinate rPixels (expressed in pixels) on the camera's
 // image plane.
 //
-Eigen::Vector3d pixelsToUnitVector_C(const Eigen::Vector2d& rPixels);
+Eigen::Vector3d pixelsToUnitVector_C(const Eigen::Vector2d &rPixels);
 
 // Functions for easy printing in gdb
 void pr(Eigen::MatrixXd m);
