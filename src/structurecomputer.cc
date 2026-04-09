@@ -72,18 +72,18 @@ Point StructureComputer::computeStructure() {
   // point_.rXIHat and point_.Px
   // *********************************************************************
   const int N = bundleVec_.size();
+  const auto K = sensorParams_.K();
+  const auto ps = sensorParams_.pixelSize();
   // Still need to figure out the best way construct R
-  Eigen::MatrixXd Hprime;
-  Eigen::MatrixXd R;
+  Eigen::MatrixXd Hprime = Eigen::MatrixXd::Zero(2 * N, 4);
+  Eigen::MatrixXd R = Eigen::MatrixXd::Zero(2 * N, 2 * N);
   for (size_t i = 0; i < N; ++i) {
-    R.block<2, 2>(2 * i, 2 * i) = sensorParams_.Rc();
+    R.block<2, 2>(2 * i, 2 * i) = ps * ps * sensorParams_.Rc();
   }
   const Eigen::MatrixXd RInv =
       R.inverse(); // Not the awesomest way to do this, but intuitive
-  Eigen::MatrixXd Pi;
+  Eigen::MatrixXd Pi = Eigen::MatrixXd::Zero(3, 4);
   Eigen::Vector3d tC;
-  const auto K = sensorParams_.K();
-  const auto ps = sensorParams_.pixelSize();
 
   for (size_t i = 0; i < N; ++i) {
     tC = bundleVec_[i]->RCI * bundleVec_[i]->rc_I;
@@ -96,9 +96,12 @@ Point StructureComputer::computeStructure() {
 
     // Convert pixels to m and center on the camera plane
     double xtilde =
-        ps * (bundleVec_[i]->rx(1) - 0.5 * sensorParams_.imageWidthPixels());
+        // ps * (bundleVec_[i]->rx(0) - 0.5 * sensorParams_.imageWidthPixels());
+        ps * bundleVec_[i]->rx(0);
     double ytilde =
-        ps * (bundleVec_[i]->rx(2) - 0.5 * sensorParams_.imageHeightPixels());
+        // ps * (bundleVec_[i]->rx(1) - 0.5 *
+        // sensorParams_.imageHeightPixels());
+        ps * bundleVec_[i]->rx(1);
 
     Hprime.row(2 * i) = xtilde * p3T - p1T;
     Hprime.row(2 * i + 1) = ytilde * p3T - p2T;

@@ -1,6 +1,7 @@
 #include "balloonfinder.h"
 
 #include <Eigen/Dense>
+#include <algorithm>
 #include <cassert>
 #include <numeric>
 #include <opencv2/core/eigen.hpp>
@@ -75,16 +76,28 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
   // coordinates.  You can push rx onto rxVec as follows: rxVec->push_back(rx)
   //
   // *************************************************************************
+  // ==== Preprocessing ===
+  // Even out the lighting
+  cvtColor(framep, framep, COLOR_BGR2Lab);
+  std::vector<Mat> channels;
+  split(framep, channels);
+  Ptr<CLAHE> clahe = createCLAHE();
+  clahe->setClipLimit(2.5);
+  clahe->apply(channels[0], channels[0]);
+  merge(channels, framep);
+  cvtColor(framep, framep, COLOR_Lab2BGR);
+  const Mat colorGraded = framep.clone();
   // Convert to HSV and set color bounds
   cvtColor(framep, framep, COLOR_BGR2HSV);
   // RED
-  Scalar redLower_l{0, 120, 100};
-  Scalar redLower_u{10, 255, 255};
-  Scalar redUpper_l{170, 120, 100};
-  Scalar redUpper_u{180, 255, 255};
+  const float hsv_scale = 2.55;
+  Scalar redLower_l{0 / 2, 50 * hsv_scale, 50 * hsv_scale};
+  Scalar redLower_u{30 / 2, 100 * hsv_scale, 100 * hsv_scale};
+  Scalar redUpper_l{320 / 2, 40 * hsv_scale, 40 * hsv_scale};
+  Scalar redUpper_u{360 / 2, 100 * hsv_scale, 100 * hsv_scale};
   // BLUE (Will need to tune this)
-  Scalar blue_l{100, 180, 190};
-  Scalar blue_u{130, 255, 255};
+  Scalar blue_l{180 / 2, 40 * hsv_scale, 40 * hsv_scale};
+  Scalar blue_u{265 / 2, 100 * hsv_scale, 100 * hsv_scale};
 
   // Binary frame for selected color (RED or BLUE)
   Mat matLower, matUpper;
@@ -99,12 +112,17 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
   int iters{5}; // Can be adjusted, but should be plenty
   erode(framep, framep, Mat(), cv::Point(-1, -1), iters);
   dilate(framep, framep, Mat(), cv::Point(-1, -1), iters);
+  cv::Mat mask = framep;
 
-  // Find contours and determine if they are a red balloon
-  float maxAR{1.5};
-  float minR{25};
+  // Find contours and determine if they are a balloon
+  float maxAR{1.55};
+  float minAR{1};
+  float minR{47};
+  float minES{0.975};
   std::vector<std::vector<cv::Point>> contours;
   findContours(framep, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+  std::vector<cv::RotatedRect> rects;
+  std::vector<cv::RotatedRect> ellipses;
   for (int i = 0; i < contours.size(); i++) {
     // Circle for now, may try other bounding options
     Point2f center;
@@ -112,17 +130,29 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
     minEnclosingCircle(contours[i], center, radius);
 
     float aspectRatio;
+    float ellipseScore;
     int minPointsForEllipse{5};
     if (contours[i].size() >= minPointsForEllipse) {
       RotatedRect boundingRectangle{fitEllipse(contours[i])};
+      ellipses.push_back(boundingRectangle);
+      RotatedRect minRect{minAreaRect(contours[i])};
+      rects.push_back(minRect);
       float width{boundingRectangle.size.width};
       float height{boundingRectangle.size.height};
+      double ellipseArea{width * height * 0.785};
+      double contArea{contourArea(contours[i])};
       aspectRatio = std::max(width, height) / std::min(width, height);
+      ellipseScore = contArea / ellipseArea; // Should be close to one
     }
     // If the detection looks like a balloon, set the return value and push the
     // point
-    if (aspectRatio < maxAR && radius > minR) {
-      rxVec->push_back(Eigen::Vector2d(center.x, center.y));
+    if (aspectRatio < maxAR && radius > minR && aspectRatio > minAR &&
+        ellipseScore > minES) {
+      std::cout << "Aspect Ratio " << aspectRatio << std::endl;
+      std::cout << "EllipseScore: " << ellipseScore << std::endl;
+
+      rxVec->push_back(
+          Eigen::Vector2d(nCols_m1 - center.x, nRows_m1 - center.y));
       returnValue = true;
     }
     // Find the center of the outline in pixels and pass it to rxVec
@@ -156,14 +186,33 @@ bool BalloonFinder::findBalloonsOfSpecifiedColor(
     // system using an inverse of the mapping below.
     center.x = nCols_m1 - xc_pixels(0);
     center.y = nRows_m1 - xc_pixels(1);
-    circle(original, center, 20, trueProjectionColor, FILLED);
+    circle(original, center, 20, trueProjectionColor,
+           FILLED); // Draw the true center
     auto &points = *rxVec;
     for (int i{}; i < points.size(); i++) { // Draw the found balloon centers
-      cv::Point2f found_center(points[i](0, 0), points[i](1, 0));
-      circle(original, found_center, 25, Scalar(60, 255, 255), 3);
+      cv::Point2f found_center(nCols_m1 - points[i](0, 0),
+                               nRows_m1 - points[i](1, 0));
+      circle(original, found_center, 25, trueProjectionColor, 3);
     }
+    // // Draw the bounding shapes on the masked image
+    // for (int i{}; i < contours.size(); i++) { // Draw the found balloon
+    // centers
+    //   Point2f vertices[4];
+    //   rects[i].points(vertices);
+    //   for (int j{}; j < 4; j++) {
+    //     line(original, vertices[j], vertices[(j + 1) % 4], Scalar(255, 0, 0),
+    //          3);
+    //   }
+    //   ellipse(original, ellipses[i], Scalar(0, 255, 0), 3);
+    // }
+    // Draw the contours in green
+    drawContours(original, contours, -1, Scalar(0, 255, 0), 3);
     namedWindow("Display", WINDOW_NORMAL);
     resizeWindow("Display", 1000, 1000);
+    imshow("Display", colorGraded); // Show the binary mask
+    waitKey(0);
+    imshow("Display", mask); // Show the binary mask
+    waitKey(0);
     imshow("Display", original);
     waitKey(0);
   }

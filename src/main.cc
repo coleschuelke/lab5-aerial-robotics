@@ -16,7 +16,7 @@
 
 namespace po = boost::program_options;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   // Set defaults and draw in command-line arguments
   std::string imageDirectory = "../images";
   Eigen::Vector3d blueTrue_I, redTrue_I;
@@ -26,14 +26,13 @@ int main(int argc, char** argv) {
   bool debuggingEnabled = false;
   bool calibrationEnabled = false;
   po::options_description desc("Allowed options");
-  desc.add_options()
-    ("help,h", "produce help message")
-    ("images,i", po::value<std::string>(&imageDirectory),
-     "directory where images are located")
-    ("debug,d", po::bool_switch(&debuggingEnabled),
-     "enable interactive debugging")
-    ("calibrate,c", po::bool_switch(&calibrationEnabled),
-     "enable calibration of camera extrinsics");
+  desc.add_options()("help,h", "produce help message")(
+      "images,i", po::value<std::string>(&imageDirectory),
+      "directory where images are located")("debug,d",
+                                            po::bool_switch(&debuggingEnabled),
+                                            "enable interactive debugging")(
+      "calibrate,c", po::bool_switch(&calibrationEnabled),
+      "enable calibration of camera extrinsics");
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
@@ -45,8 +44,8 @@ int main(int argc, char** argv) {
   // Find all jpg file names in the input directory and store these in
   // imageFilenameVec
   std::vector<std::string> imageFilenameVec;
-  DIR* directory;
-  dirent* entries;
+  DIR *directory;
+  dirent *entries;
   if ((directory = opendir(imageDirectory.c_str())) != nullptr) {
     while ((entries = readdir(directory)) != nullptr) {
       std::string imageFilename(entries->d_name);
@@ -87,7 +86,7 @@ int main(int argc, char** argv) {
                                 blueTrue_I, redTrue_I);
     StructureComputer structureComputerBlue, structureComputerRed;
     // Draw in and process each image
-    for (const auto& imageFilename : imageFilenameVec) {
+    for (const auto &imageFilename : imageFilenameVec) {
       std::string imagePath = imageDirectory + "/" + imageFilename;
       cv::Mat image = cv::imread(imagePath);
       if (!image.data) {
@@ -95,7 +94,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
       }
       // Retrieve the metadata for this image
-      const auto& imd = imageMetadataMap.at(imageFilename);
+      const auto &imd = imageMetadataMap.at(imageFilename);
       // Send image to balloonFinder
       std::vector<std::shared_ptr<const CameraBundle>> bundles;
       std::vector<BalloonFinder::BalloonColor> colors;
@@ -104,14 +103,14 @@ int main(int argc, char** argv) {
                                  &colors);
       for (size_t ii = 0; ii < bundles.size(); ii++) {
         switch (colors[ii]) {
-          case BalloonFinder::BalloonColor::RED:
-            structureComputerRed.push(bundles[ii]);
-            break;
-          case BalloonFinder::BalloonColor::BLUE:
-            structureComputerBlue.push(bundles[ii]);
-            break;
-          default:
-            break;
+        case BalloonFinder::BalloonColor::RED:
+          structureComputerRed.push(bundles[ii]);
+          break;
+        case BalloonFinder::BalloonColor::BLUE:
+          structureComputerBlue.push(bundles[ii]);
+          break;
+        default:
+          break;
         }
       }
     }
@@ -134,7 +133,7 @@ int main(int argc, char** argv) {
       std::cout << "eCB_calibrated (deg): " << eCB_rad.transpose() * 180 / PI
                 << std::endl;
     }
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::cout << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
   } catch (...) {
