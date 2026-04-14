@@ -10,12 +10,12 @@
 #include "structurecomputer.h"
 
 class BalloonFinder {
- public:
+public:
   enum class BalloonColor { RED, BLUE };
   // Constructor: gets called when an instance of BalloonFinder is created
   BalloonFinder(bool debuggingEnabled, bool calibrationEnabled,
-                const Eigen::Vector3d& blueTrue_I,
-                const Eigen::Vector3d& redTrue_I);
+                const Eigen::Vector3d &blueTrue_I,
+                const Eigen::Vector3d &redTrue_I);
   // Destructor: gets called when an instance of BalloonFinder is destructed
   // (destroyed)
   ~BalloonFinder() {}
@@ -29,10 +29,10 @@ class BalloonFinder {
   // camera center at the instant the image was taken, expressed in the I
   // frame in meters.  RCI and rc_I are input so that the corresponding values
   // in each output CameraBundle can be populated.
-  void findBalloons(const cv::Mat* image, const Eigen::Matrix3d RCI,
+  void findBalloons(const cv::Mat *image, const Eigen::Matrix3d RCI,
                     const Eigen::Vector3d rc_I,
-                    std::vector<std::shared_ptr<const CameraBundle>>* bundles,
-                    std::vector<BalloonColor>* colors);
+                    std::vector<std::shared_ptr<const CameraBundle>> *bundles,
+                    std::vector<BalloonColor> *colors);
   // Takes in a pointer to an image and a specified balloon color and returns
   // true if a balloon or multiple balloons of that color are found in the
   // image.  The centers of the found balloons are returned in rxVec, in
@@ -45,11 +45,17 @@ class BalloonFinder {
   // attitude matrix relating the C and I frames at the instant the input
   // image was taken.  The input rc_I is the 3x1 position of the camera center
   // at the instant the image was taken, expressed in the I frame in meters.
-  bool findBalloonsOfSpecifiedColor(const cv::Mat* image,
+  bool findBalloonsOfSpecifiedColor(const cv::Mat *image,
                                     const Eigen::Matrix3d RCI,
                                     const Eigen::Vector3d rc_I,
                                     const BalloonFinder::BalloonColor color,
-                                    std::vector<Eigen::Vector2d>* rxVec);
+                                    std::vector<Eigen::Vector2d> *rxVec);
+
+  void trainBalloonsOfSpecifiedColor(const cv::Mat *image,
+                                     const Eigen::Matrix3d RCI,
+                                     const Eigen::Vector3d rc_I,
+                                     const BalloonFinder::BalloonColor color,
+                                     std::vector<Eigen::Vector2d> *rxVec);
   // Returns the updated eCB 312 Euler angles relating the C and B frames
   // after extrinsic camera calibration.  Let the 3x3 matrix RCB be the
   // assumed B-to-C attitude matrix in the SensorParams object.  Then the
@@ -57,7 +63,12 @@ class BalloonFinder {
   // Euler angles corresponding to RCB_calibrated.
   Eigen::Vector3d eCB_calibrated() const;
 
- private:
+  void trainBalloons(const cv::Mat *image, const Eigen::Matrix3d RCI,
+                     const Eigen::Vector3d rc_I,
+                     std::vector<std::shared_ptr<const CameraBundle>> *bundles,
+                     std::vector<BalloonColor> *colors);
+
+private:
   SensorParams sensorParams_;
   // Indicates whether interactive debugging is enabled
   bool debuggingEnabled_;

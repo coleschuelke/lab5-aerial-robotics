@@ -101,31 +101,7 @@ int main(int argc, char **argv) {
       std::cout << "\nProcessing image " << imageFilename << std::endl;
       balloonFinder.trainBalloons(&image, imd.RCI(), imd.rc_I(), &bundles,
                                   &colors);
-      for (size_t ii = 0; ii < bundles.size(); ii++) {
-        switch (colors[ii]) {
-        case BalloonFinder::BalloonColor::RED:
-          structureComputerRed.push(bundles[ii]);
-          break;
-        case BalloonFinder::BalloonColor::BLUE:
-          structureComputerBlue.push(bundles[ii]);
-          break;
-        default:
-          break;
-        }
-      }
     }
-
-    // Estimate 3D location of feature.
-    Point pBlue = structureComputerBlue.computeStructure();
-    Point pRed = structureComputerRed.computeStructure();
-    std::cout << "\nBlue balloon estimated 3D location error: \n"
-              << pBlue.rXIHat - blueTrue_I << std::endl;
-    std::cout << "Red balloon estimated 3D location error: \n"
-              << pRed.rXIHat - redTrue_I << std::endl;
-    std::cout << "Blue error covariance matrix sqrt diagonal: \n"
-              << pBlue.Px.diagonal().cwiseSqrt() << std::endl;
-    std::cout << "Red error covariance matrix sqrt diagonal: \n"
-              << pRed.Px.diagonal().cwiseSqrt() << std::endl;
 
     if (calibrationEnabled) {
       // Output calibrated eCB
