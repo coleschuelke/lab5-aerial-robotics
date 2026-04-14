@@ -85,6 +85,10 @@ int main(int argc, char **argv) {
     BalloonFinder balloonFinder(debuggingEnabled, calibrationEnabled,
                                 blueTrue_I, redTrue_I);
     StructureComputer structureComputerBlue, structureComputerRed;
+
+    // Create a file to write out the data
+    std::ofstream file("training_data.csv");
+
     // Draw in and process each image
     for (const auto &imageFilename : imageFilenameVec) {
       std::string imagePath = imageDirectory + "/" + imageFilename;
@@ -100,7 +104,7 @@ int main(int argc, char **argv) {
       std::vector<BalloonFinder::BalloonColor> colors;
       std::cout << "\nProcessing image " << imageFilename << std::endl;
       balloonFinder.trainBalloons(&image, imd.RCI(), imd.rc_I(), &bundles,
-                                  &colors);
+                                  &colors, file);
     }
 
     if (calibrationEnabled) {

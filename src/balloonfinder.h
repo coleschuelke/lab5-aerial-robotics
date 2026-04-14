@@ -55,7 +55,8 @@ public:
                                      const Eigen::Matrix3d RCI,
                                      const Eigen::Vector3d rc_I,
                                      const BalloonFinder::BalloonColor color,
-                                     std::vector<Eigen::Vector2d> *rxVec);
+                                     std::vector<Eigen::Vector2d> *rxVec,
+                                     std::ostream &ostream);
   // Returns the updated eCB 312 Euler angles relating the C and B frames
   // after extrinsic camera calibration.  Let the 3x3 matrix RCB be the
   // assumed B-to-C attitude matrix in the SensorParams object.  Then the
@@ -66,7 +67,7 @@ public:
   void trainBalloons(const cv::Mat *image, const Eigen::Matrix3d RCI,
                      const Eigen::Vector3d rc_I,
                      std::vector<std::shared_ptr<const CameraBundle>> *bundles,
-                     std::vector<BalloonColor> *colors);
+                     std::vector<BalloonColor> *colors, std::ostream &os);
 
 private:
   SensorParams sensorParams_;

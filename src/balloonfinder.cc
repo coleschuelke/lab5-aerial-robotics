@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <algorithm>
 #include <cassert>
+#include <fstream>
 #include <numeric>
 #include <opencv2/core/eigen.hpp>
 #include <ratio>
@@ -52,7 +53,7 @@ Eigen::Vector3d BalloonFinder::eCB_calibrated() const {
 void BalloonFinder::trainBalloonsOfSpecifiedColor(
     const cv::Mat *image, const Eigen::Matrix3d RCI, const Eigen::Vector3d rc_I,
     const BalloonFinder::BalloonColor color,
-    std::vector<Eigen::Vector2d> *rxVec) {
+    std::vector<Eigen::Vector2d> *rxVec, std::ostream &os) {
   using namespace cv;
   bool returnValue = false;
   rxVec->clear();
@@ -182,11 +183,16 @@ void BalloonFinder::trainBalloonsOfSpecifiedColor(
     Point2f dist = center - cont_center;
     Eigen::Vector2d dist_eig;
     dist_eig << dist.x, dist.y;
+
+    const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision,
+                                           Eigen::DontAlignCols, ", ", "\n");
+
     if (dist_eig.norm() < detection_radius) {
       // Write out with a 1
     } else {
       // Write out with a 0
     }
+    os << row.format(CSVFormat);
   }
 
   // Drawing images for debugging purposes
@@ -438,7 +444,7 @@ void BalloonFinder::findBalloons(
 void BalloonFinder::trainBalloons(
     const cv::Mat *image, const Eigen::Matrix3d RCI, const Eigen::Vector3d rc_I,
     std::vector<std::shared_ptr<const CameraBundle>> *bundles,
-    std::vector<BalloonColor> *colors) {
+    std::vector<BalloonColor> *colors, std::ostream &os) {
   // Crop image to 4k size.  This removes the bottom 16 rows of the image,
   // which are an artifact of the camera API.
   const cv::Rect croppedRegion(0, 0, sensorParams_.imageWidthPixels(),
@@ -459,6 +465,7 @@ void BalloonFinder::trainBalloons(
                                                BalloonColor::BLUE};
   for (auto color : candidateColors) {
     std::vector<Eigen::Vector2d> rxVec;
-    trainBalloonsOfSpecifiedColor(&undistortedImage, RCI, rc_I, color, &rxVec);
+    trainBalloonsOfSpecifiedColor(&undistortedImage, RCI, rc_I, color, &rxVec,
+                                  os);
   }
 }
